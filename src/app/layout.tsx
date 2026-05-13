@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FlowBill Arc",
+  title: "FlowBill Arc — USDC Invoicing on Arc Testnet",
   description:
-    "Gasless-ready USDC invoice app for freelancers and global builders on Arc Testnet.",
+    "Create invoices, share payment links, and receive USDC payments on Arc Testnet. Built for freelancers and global builders.",
 };
 
 export default function RootLayout({

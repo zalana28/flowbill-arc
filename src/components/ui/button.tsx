@@ -2,29 +2,25 @@
 
 import { type ButtonHTMLAttributes, forwardRef } from "react";
 
-// ─── Variants ───────────────────────────────────────────────────────────────
-
 type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 type ButtonSize = "sm" | "md" | "lg";
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-accent-blue text-white hover:bg-accent-blue/90 focus-visible:ring-accent-blue/50",
+    "bg-gradient-to-r from-accent-green via-accent-cyan to-accent-blue text-white shadow-lg shadow-accent-green/10 hover:shadow-accent-green/20 hover:brightness-110 active:brightness-95",
   secondary:
-    "bg-bg-elevated text-text-primary border border-border-default hover:bg-bg-card focus-visible:ring-border-default",
+    "bg-bg-surface text-text-primary border border-border-default hover:bg-bg-hover hover:border-border-accent",
   ghost:
-    "bg-transparent text-text-secondary hover:bg-bg-elevated hover:text-text-primary focus-visible:ring-border-default",
+    "bg-transparent text-text-secondary hover:bg-bg-surface hover:text-text-primary",
   danger:
-    "bg-accent-red text-white hover:bg-accent-red/90 focus-visible:ring-accent-red/50",
+    "bg-accent-red/10 text-accent-red border border-accent-red/20 hover:bg-accent-red/20",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-sm",
-  md: "px-5 py-2.5 text-sm",
-  lg: "px-6 py-3 text-base",
+  sm: "h-8 px-3 text-xs",
+  md: "h-10 px-5 text-sm",
+  lg: "h-12 px-7 text-base",
 };
-
-// ─── Props ──────────────────────────────────────────────────────────────────
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -32,8 +28,6 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
   fullWidth?: boolean;
 }
-
-// ─── Component ──────────────────────────────────────────────────────────────
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
@@ -56,10 +50,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={isDisabled}
         className={[
-          "inline-flex items-center justify-center gap-2 rounded-lg font-medium",
-          "transition-colors duration-150 ease-in-out",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
+          "inline-flex items-center justify-center gap-2 rounded-xl font-semibold",
+          "transition-all duration-200 ease-out",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary",
+          "disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none",
           variantStyles[variant],
           sizeStyles[size],
           fullWidth ? "w-full" : "",
@@ -75,19 +69,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             viewBox="0 0 24 24"
             aria-hidden="true"
           >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            />
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
         )}
         {children}

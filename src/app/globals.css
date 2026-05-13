@@ -1,22 +1,105 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-bg-primary: #0a0a0f;
-  --color-bg-card: #12121a;
-  --color-bg-elevated: #1a1a2e;
-  --color-border-default: #2a2a3e;
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #a0a0b0;
+  /* ─── Base Surfaces ─────────────────────────────────────────────────── */
+  --color-bg-primary: #06070b;
+  --color-bg-card: #0d0f16;
+  --color-bg-elevated: #141722;
+  --color-bg-surface: #1a1e2e;
+  --color-bg-hover: #1f2437;
+
+  /* ─── Borders ───────────────────────────────────────────────────────── */
+  --color-border-default: #1e2235;
+  --color-border-subtle: #151927;
+  --color-border-accent: #2dd4bf30;
+
+  /* ─── Text ──────────────────────────────────────────────────────────── */
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #8b95a9;
+  --color-text-muted: #5b6477;
+
+  /* ─── Accents ───────────────────────────────────────────────────────── */
   --color-accent-blue: #3b82f6;
+  --color-accent-cyan: #22d3ee;
   --color-accent-green: #10b981;
-  --color-accent-yellow: #f59e0b;
-  --color-accent-red: #ef4444;
+  --color-accent-emerald: #34d399;
+  --color-accent-yellow: #fbbf24;
+  --color-accent-red: #f43f5e;
+  --color-accent-purple: #a78bfa;
+
+  /* ─── Gradients (as single-color anchors for Tailwind) ──────────────── */
+  --color-gradient-start: #10b981;
+  --color-gradient-mid: #22d3ee;
+  --color-gradient-end: #3b82f6;
+
+  /* ─── Typography ────────────────────────────────────────────────────── */
   --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
+
+/* ─── Global Styles ──────────────────────────────────────────────────────── */
 
 body {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-family: var(--font-sans);
+}
+
+/* Subtle background grid pattern */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(30, 34, 53, 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 34, 53, 0.4) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* Radial glow for hero sections */
+.bg-glow {
+  background: radial-gradient(
+    ellipse 80% 50% at 50% -20%,
+    rgba(16, 185, 129, 0.08),
+    transparent
+  );
+}
+
+/* Premium gradient text */
+.text-gradient {
+  background: linear-gradient(135deg, #10b981, #22d3ee, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass effect for cards */
+.glass {
+  background: rgba(13, 15, 22, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Smooth shimmer animation for loading states */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Pulse glow for confirming states */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.3); }
+  50% { box-shadow: 0 0 20px 4px rgba(16, 185, 129, 0.15); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }

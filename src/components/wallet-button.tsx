@@ -4,12 +4,6 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { truncateAddress } from "@/lib/utils";
 
-// ─── Component ──────────────────────────────────────────────────────────────
-
-/**
- * Wallet connect/disconnect button.
- * Shows truncated address when connected, "Connect Wallet" otherwise.
- */
 export function WalletButton() {
   const { address, isConnected, isConnecting } = useAccount();
   const { connect, connectors } = useConnect();
@@ -17,15 +11,15 @@ export function WalletButton() {
 
   if (isConnected && address) {
     return (
-      <Button
-        variant="secondary"
-        size="sm"
+      <button
         onClick={() => disconnect()}
         title={address}
         aria-label={`Disconnect wallet ${address}`}
+        className="flex items-center gap-2 h-9 px-3 rounded-xl border border-border-default bg-bg-surface text-sm font-medium text-text-primary hover:border-border-accent hover:bg-bg-hover transition-all duration-200"
       >
+        <span className="h-2 w-2 rounded-full bg-accent-green animate-pulse" />
         <span className="font-mono text-xs">{truncateAddress(address)}</span>
-      </Button>
+      </button>
     );
   }
 

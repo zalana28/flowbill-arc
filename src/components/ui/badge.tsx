@@ -1,23 +1,24 @@
 import type { HTMLAttributes } from "react";
 
-// ─── Variants ───────────────────────────────────────────────────────────────
-
 type BadgeVariant = "pending" | "paid" | "overdue" | "default";
 
 const variantStyles: Record<BadgeVariant, string> = {
-  pending: "bg-accent-yellow/15 text-accent-yellow border-accent-yellow/30",
-  paid: "bg-accent-green/15 text-accent-green border-accent-green/30",
-  overdue: "bg-accent-red/15 text-accent-red border-accent-red/30",
-  default: "bg-bg-elevated text-text-secondary border-border-default",
+  pending: "bg-accent-yellow/10 text-accent-yellow border-accent-yellow/20",
+  paid: "bg-accent-green/10 text-accent-green border-accent-green/20",
+  overdue: "bg-accent-red/10 text-accent-red border-accent-red/20",
+  default: "bg-bg-surface text-text-secondary border-border-default",
 };
 
-// ─── Props ──────────────────────────────────────────────────────────────────
+const dotColors: Record<BadgeVariant, string> = {
+  pending: "bg-accent-yellow",
+  paid: "bg-accent-green",
+  overdue: "bg-accent-red",
+  default: "bg-text-muted",
+};
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
 }
-
-// ─── Component ──────────────────────────────────────────────────────────────
 
 export function Badge({
   variant = "default",
@@ -28,12 +29,13 @@ export function Badge({
   return (
     <span
       className={[
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize",
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium",
         variantStyles[variant],
         className,
       ].join(" ")}
       {...props}
     >
+      <span className={`h-1.5 w-1.5 rounded-full ${dotColors[variant]}`} />
       {children}
     </span>
   );

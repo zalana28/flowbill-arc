@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Web3Provider } from "@/providers/web3-provider";
+import { Header } from "@/components/header";
+import { NetworkBanner } from "@/components/network-banner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,7 +32,11 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg-primary text-text-primary">
-        <Web3Provider>{children}</Web3Provider>
+        <Web3Provider>
+          <Header />
+          <NetworkBanner />
+          <main className="flex flex-1 flex-col">{children}</main>
+        </Web3Provider>
       </body>
     </html>
   );

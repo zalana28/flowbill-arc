@@ -87,6 +87,75 @@ export default function DashboardPage() {
           ))}
         </div>
       )}
+
+      {/* Circle Integration Status */}
+      <section className="mt-12 border-t border-border-default pt-8">
+        <h2 className="text-lg font-semibold text-text-primary mb-2">
+          Circle Integration
+        </h2>
+        <p className="text-sm text-text-secondary mb-4">
+          Phase 1 uses wallet-native Arc Testnet payments. No Circle API key is
+          required.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <IntegrationItem
+            label="Modular Wallets"
+            description="Embedded wallets for non-crypto-native clients"
+            status="planned"
+          />
+          <IntegrationItem
+            label="Gas Station"
+            description="Sponsored transactions for gasless payments"
+            status="planned"
+          />
+          <IntegrationItem
+            label="Paymaster"
+            description="Pay gas fees with USDC"
+            status="planned"
+          />
+          <IntegrationItem
+            label="CCTP"
+            description="Cross-chain USDC invoice payments"
+            status="planned"
+          />
+          <IntegrationItem
+            label="Webhooks"
+            description="Real-time payment status notifications"
+            status="planned"
+          />
+        </div>
+      </section>
     </PageContainer>
+  );
+}
+
+// ─── Integration Item ───────────────────────────────────────────────────────
+
+function IntegrationItem({
+  label,
+  description,
+  status,
+}: {
+  label: string;
+  description: string;
+  status: "active" | "planned";
+}) {
+  return (
+    <div className="rounded-lg border border-border-default bg-bg-card p-4">
+      <div className="flex items-center justify-between gap-2 mb-1">
+        <span className="text-sm font-medium text-text-primary">{label}</span>
+        <span
+          className={[
+            "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+            status === "active"
+              ? "bg-accent-green/15 text-accent-green"
+              : "bg-bg-elevated text-text-secondary",
+          ].join(" ")}
+        >
+          {status === "active" ? "Active" : "Planned"}
+        </span>
+      </div>
+      <p className="text-xs text-text-secondary">{description}</p>
+    </div>
   );
 }

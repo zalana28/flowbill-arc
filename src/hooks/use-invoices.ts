@@ -10,6 +10,7 @@ import {
   deleteInvoice,
 } from "@/lib/storage";
 import { generateId } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
 
 // ─── Overdue Detection ──────────────────────────────────────────────────────
 
@@ -97,6 +98,7 @@ export function useInvoices(): UseInvoicesReturn {
         updatedAt: now,
       };
       saveInvoice(invoice);
+      trackEvent("invoice_created", { amount: data.amount, clientName: data.clientName });
       refresh();
       return invoice.id;
     },

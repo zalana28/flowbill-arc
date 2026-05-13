@@ -9,6 +9,7 @@ import { PageContainer } from "@/components/page-container";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { trackEvent } from "@/lib/analytics";
 import { AddressDisplay } from "@/components/invoice/address-display";
 import { StatusBadge } from "@/components/invoice/status-badge";
 import { ReceiptSection } from "@/components/invoice/receipt-section";
@@ -24,6 +25,9 @@ export default function PaymentPage({ params }: PaymentPageProps) {
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => { if (!isLoadingInvoices) { setInvoice(getById(id)); setIsHydrated(true); } }, [id, getById, isLoadingInvoices]);
+
+  // Track payment link open
+  useEffect(() => { if (isHydrated && invoice) { trackEvent("payment_link_opened", { invoiceId: id, amount: invoice.amount }); } }, [isHydrated, invoice, id]);
 
   if (!isHydrated) return (<PageContainer><div className="flex items-center justify-center py-24"><LoadingSpinner size={36} /></div></PageContainer>);
 
@@ -104,6 +108,7 @@ function PaymentAction({ invoice, onSuccess, markPaid }: { invoice: Invoice; onS
 
   useEffect(() => {
     if (isSuccess && txHash && address) {
+      trackEvent("payment_success", { invoiceId: invoice.id, amount: invoice.amount, txHash });
       const updated = markPaid(invoice.id, { txHash, payerAddress: address, paidAt: new Date().toISOString(), blockNumber: 0 });
       if (updated) onSuccess(updated);
     }

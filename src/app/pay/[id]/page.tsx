@@ -250,13 +250,29 @@ function PaymentAction({
   // ── Wrong network ──
   if (!isCorrectNetwork) {
     return (
-      <Card>
-        <div className="text-center py-2">
-          <h3 className="text-sm font-medium text-accent-yellow mb-2">
-            Wrong Network
+      <Card className="border-accent-yellow/30">
+        <div className="text-center py-4">
+          <div className="mb-3 inline-flex rounded-full bg-accent-yellow/15 p-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="h-6 w-6 text-accent-yellow"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.499-2.599 4.499H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <h3 className="text-base font-semibold text-accent-yellow mb-2">
+            Please switch to Arc Testnet before paying
           </h3>
-          <p className="text-xs text-text-secondary mb-4">
-            {switchError || "Please switch to Arc Testnet to make this payment."}
+          <p className="text-sm text-text-secondary mb-5 max-w-xs mx-auto">
+            {switchError ||
+              "Your wallet is connected to the wrong network. Switch to Arc Testnet (Chain ID 5042002) to complete this payment."}
           </p>
           <Button
             variant="primary"
@@ -267,6 +283,10 @@ function PaymentAction({
           >
             Switch to Arc Testnet
           </Button>
+          <p className="text-xs text-text-secondary mt-3">
+            This will prompt your wallet to switch or add the Arc Testnet
+            network.
+          </p>
         </div>
       </Card>
     );

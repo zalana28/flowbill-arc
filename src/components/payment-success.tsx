@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AddressDisplay } from "@/components/invoice/address-display";
+import { AnimatedCheckmark } from "@/components/ui/motion";
 import { getExplorerTxUrl, formatDateTime } from "@/lib/utils";
 import type { Invoice } from "@/types/invoice";
 
@@ -12,17 +13,9 @@ interface PaymentSuccessProps {
 }
 
 /**
- * Animated payment success state with receipt summary and ArcScan CTA.
- * Shows a checkmark animation on mount, then reveals receipt details.
+ * Animated payment success state with checkmark, receipt reveal, and ArcScan CTA.
  */
 export function PaymentSuccess({ invoice }: PaymentSuccessProps) {
-  const [showDetails, setShowDetails] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowDetails(true), 800);
-    return () => clearTimeout(timer);
-  }, []);
-
   const { payment } = invoice;
   if (!payment) return null;
 
@@ -36,48 +29,45 @@ export function PaymentSuccess({ invoice }: PaymentSuccessProps) {
         <div className="relative text-center py-6">
           {/* Animated checkmark */}
           <div className="mb-4 inline-flex items-center justify-center">
-            <div className="relative h-16 w-16">
-              {/* Ring */}
-              <svg className="absolute inset-0 h-16 w-16 animate-draw-ring" viewBox="0 0 64 64" fill="none">
-                <circle
-                  cx="32" cy="32" r="28"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  className="text-accent-green"
-                  strokeLinecap="round"
-                  strokeDasharray="176"
-                  strokeDashoffset="0"
-                />
-              </svg>
-              {/* Checkmark */}
-              <svg className="absolute inset-0 h-16 w-16 animate-draw-check" viewBox="0 0 64 64" fill="none">
-                <path
-                  d="M20 34 L28 42 L44 24"
-                  stroke="currentColor"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-accent-green"
-                  strokeDasharray="40"
-                  strokeDashoffset="0"
-                />
-              </svg>
-            </div>
+            <AnimatedCheckmark size={64} />
           </div>
 
-          <h2 className="text-xl font-bold text-text-primary mb-1">Payment Successful</h2>
-          <p className="text-sm text-text-secondary">
-            {parseFloat(invoice.amount).toFixed(2)} USDC sent on Arc Testnet
-          </p>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.4 }}
+          >
+            <h2 className="text-xl font-bold text-text-primary mb-1">Payment Successful</h2>
+            <p className="text-sm text-text-secondary">
+              {parseFloat(invoice.amount).toFixed(2)} USDC sent on Arc Testnet
+            </p>
+          </motion.div>
+
+          {/* Confetti dots */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute h-1.5 w-1.5 rounded-full"
+                style={{
+                  left: `${20 + Math.random() * 60}%`,
+                  top: `${20 + Math.random() * 40}%`,
+                  backgroundColor: ["#10b981", "#22d3ee", "#3b82f6", "#34d399"][i % 4],
+                }}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0], y: [0, -20, -40] }}
+                transition={{ delay: 0.5 + i * 0.08, duration: 1.2, ease: "easeOut" }}
+              />
+            ))}
+          </div>
         </div>
       </Card>
 
-      {/* Receipt details — fade in */}
-      <div
-        className={[
-          "transition-all duration-500 ease-out",
-          showDetails ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
-        ].join(" ")}
+      {/* Receipt — staggered reveal */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9, duration: 0.5 }}
       >
         <Card>
           <h3 className="text-xs font-medium text-text-muted uppercase tracking-wider mb-4">
@@ -130,7 +120,7 @@ export function PaymentSuccess({ invoice }: PaymentSuccessProps) {
             </a>
           </div>
         </Card>
-      </div>
+      </motion.div>
     </div>
   );
 }

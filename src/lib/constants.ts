@@ -30,10 +30,12 @@ export const arcTestnet = defineChain({
 
 /**
  * ERC-20 USDC contract address on Arc Testnet.
- * This is the token contract used for invoice payments.
+ * Optional ERC-20 interface for interacting with the native USDC balance. Uses 6 decimals.
+ * Source: Arc Docs — Contract addresses, Arc Testnet.
+ * https://docs.arc.network/arc/references/contract-addresses
  */
 export const USDC_CONTRACT_ADDRESS =
-  "0x2BF45ee00918D4d7C5ef4a11726F1895A0EDE76C" as const;
+  "0x3600000000000000000000000000000000000000" as const;
 
 /**
  * ERC-20 USDC uses 6 decimals for transfer amounts.

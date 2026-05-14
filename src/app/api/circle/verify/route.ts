@@ -4,15 +4,13 @@ import { NextResponse } from "next/server";
  * GET /api/circle/verify
  *
  * Server-only route that verifies the Circle API key by testing multiple
- * authenticated Circle endpoints and reporting which one responds.
+ * authenticated Circle endpoints and reporting which one responds successfully.
+ *
+ * Does NOT stop on the first 401 — tries all endpoints before concluding.
+ * A 401 on one endpoint may mean that endpoint is incompatible with the key/product.
  *
  * Supports TEST_API_KEY and LIVE_API_KEY prefixes only.
  * KIT_KEY is rejected with a clear message.
- *
- * Endpoints tried in order:
- * 1. GET https://api-sandbox.circle.com/v1/configuration
- * 2. GET https://api.circle.com/v1/w3s/wallets
- * 3. GET https://api-sandbox.circle.com/ping
  *
  * - Never returns the API key, prefix, or Circle response body.
  * - Does not affect the payment flow.
@@ -70,7 +68,7 @@ export async function GET() {
     "Content-Type": "application/json",
   };
 
-  // Endpoint list with success messages
+  // Endpoints to try — order matters (most useful for API Logs first)
   const endpoints = [
     {
       url: "https://api-sandbox.circle.com/v1/configuration",
@@ -87,17 +85,17 @@ export async function GET() {
     },
   ];
 
+  // Try all endpoints — do NOT stop on 401
   for (const { url, successMessage } of endpoints) {
     try {
       const response = await fetch(url, { method: "GET", headers });
-      const circleStatus = response.status;
 
-      if (circleStatus === 200) {
+      if (response.status === 200) {
         return NextResponse.json(
           {
             ok: true,
             configured: true,
-            circleStatus,
+            circleStatus: 200,
             endpoint: url,
             message: successMessage,
           },
@@ -105,52 +103,21 @@ export async function GET() {
         );
       }
 
-      // 401 means key is definitively invalid — stop trying
-      if (circleStatus === 401) {
-        return NextResponse.json(
-          {
-            ok: false,
-            configured: true,
-            circleStatus,
-            endpoint: url,
-            message:
-              "Circle returned 401. The API key may be invalid or expired.",
-          },
-          { status: 200 }
-        );
-      }
-
-      // 403 or 404 — try next endpoint
-      if (circleStatus === 403 || circleStatus === 404) {
-        continue;
-      }
-
-      // Other unexpected status — report and stop
-      return NextResponse.json(
-        {
-          ok: false,
-          configured: true,
-          circleStatus,
-          endpoint: url,
-          message: `Circle returned status ${circleStatus}. Please verify your API key.`,
-        },
-        { status: 200 }
-      );
+      // Any non-200 — continue to next endpoint
     } catch {
-      // Network error on this endpoint — try next
-      continue;
+      // Network error — continue to next endpoint
     }
   }
 
-  // All endpoints failed with 403/404 or network errors
+  // All endpoints failed
   return NextResponse.json(
     {
       ok: false,
       configured: true,
-      circleStatus: 403,
+      circleStatus: 0,
       endpoint: "",
       message:
-        "All Circle endpoints returned 403/404. The key is configured but may lack product access.",
+        "Circle API key is present, but no verification endpoint succeeded.",
     },
     { status: 200 }
   );

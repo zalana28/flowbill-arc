@@ -3,14 +3,17 @@ import { NextResponse } from "next/server";
 /**
  * GET /api/circle/verify
  *
- * Server-only route that verifies the Circle API key by making a real
- * request to the Circle sandbox API.
+ * Server-only route that verifies the Circle API key by making an
+ * authenticated request to the Circle sandbox REST API.
  *
- * Uses https://api-sandbox.circle.com for testnet/sandbox keys.
- * Calls GET /ping — a lightweight endpoint accessible by all API key types.
+ * Uses GET https://api-sandbox.circle.com/v1/configuration which is an
+ * authenticated endpoint that appears in Circle API Logs.
+ *
+ * Key format: TEST_API_KEY:ID:SECRET (standard Circle testnet API key).
+ * Does NOT support KIT_KEY — this endpoint is for API Key verification only.
  *
  * - Reads CIRCLE_API_KEY from server environment.
- * - Sends the full key as Bearer token (format: PREFIX:ID:SECRET).
+ * - Sends the full key as Bearer token.
  * - Never returns the API key, prefix, or Circle response body.
  * - Does not affect the payment flow.
  */
@@ -30,81 +33,89 @@ export async function GET() {
     );
   }
 
-  try {
-    // Use sandbox base URL for testnet keys
-    // GET /ping is accessible by all Circle API key types
-    const response = await fetch(
-      "https://api-sandbox.circle.com/ping",
-      {
+  // Primary endpoint: GET /v1/configuration
+  // This is an authenticated endpoint that logs to Circle API Logs.
+  // Fallback: GET /v1/businessAccount/balances
+  const endpoints = [
+    "https://api-sandbox.circle.com/v1/configuration",
+    "https://api-sandbox.circle.com/v1/businessAccount/balances",
+  ];
+
+  for (const endpoint of endpoints) {
+    try {
+      const response = await fetch(endpoint, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${apiKey}`,
           Accept: "application/json",
+          "Content-Type": "application/json",
         },
+      });
+
+      const circleStatus = response.status;
+
+      // Success — key is valid and endpoint responded
+      if (circleStatus === 200) {
+        return NextResponse.json(
+          {
+            ok: true,
+            configured: true,
+            circleStatus,
+            message: "Circle API key verified with sandbox API.",
+          },
+          { status: 200 }
+        );
       }
-    );
 
-    const circleStatus = response.status;
+      // 401 — key is invalid or expired
+      if (circleStatus === 401) {
+        return NextResponse.json(
+          {
+            ok: false,
+            configured: true,
+            circleStatus,
+            message:
+              "Circle returned 401. The API key may be invalid or expired.",
+          },
+          { status: 200 }
+        );
+      }
 
-    if (circleStatus === 200) {
-      return NextResponse.json(
-        {
-          ok: true,
-          configured: true,
-          circleStatus,
-          message: "Circle API key verified with sandbox API.",
-        },
-        { status: 200 }
-      );
-    }
+      // 404 — endpoint not available for this key type, try next
+      if (circleStatus === 404) {
+        continue;
+      }
 
-    if (circleStatus === 401) {
-      return NextResponse.json(
-        {
-          ok: false,
-          configured: true,
-          circleStatus,
-          message:
-            "Circle returned 401. The API key may be invalid or expired.",
-        },
-        { status: 200 }
-      );
-    }
+      // 403 — key valid but no access to this specific resource, try next
+      if (circleStatus === 403) {
+        continue;
+      }
 
-    if (circleStatus === 403) {
+      // Other status — return it
       return NextResponse.json(
         {
           ok: false,
           configured: true,
           circleStatus,
-          message:
-            "Circle returned 403. The key may not have access to this environment.",
+          message: `Circle sandbox API returned status ${circleStatus}. Please verify your API key.`,
         },
         { status: 200 }
       );
+    } catch {
+      // Network error on this endpoint — try next
+      continue;
     }
-
-    // Other error status
-    return NextResponse.json(
-      {
-        ok: false,
-        configured: true,
-        circleStatus,
-        message: `Circle sandbox API returned status ${circleStatus}. Please verify your API key.`,
-      },
-      { status: 200 }
-    );
-  } catch {
-    // Network or unexpected error — never leak details
-    return NextResponse.json(
-      {
-        ok: false,
-        configured: true,
-        circleStatus: 0,
-        message:
-          "Unable to reach Circle sandbox API. Please check network connectivity.",
-      },
-      { status: 200 }
-    );
   }
+
+  // All endpoints returned 403/404 — key is present but no accessible endpoint found
+  return NextResponse.json(
+    {
+      ok: false,
+      configured: true,
+      circleStatus: 403,
+      message:
+        "Circle API key is configured but no accessible endpoint responded. Verify the key is a TEST_API_KEY (not a KIT_KEY).",
+    },
+    { status: 200 }
+  );
 }

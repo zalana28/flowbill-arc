@@ -4,7 +4,10 @@ import { NextResponse } from "next/server";
  * GET /api/circle/verify
  *
  * Server-only route that verifies the Circle API key by making a real
- * request to the Circle API.
+ * request to the Circle sandbox API.
+ *
+ * Uses https://api-sandbox.circle.com for testnet/sandbox keys.
+ * Calls GET /ping — a lightweight endpoint accessible by all API key types.
  *
  * - Reads CIRCLE_API_KEY from server environment.
  * - Sends the full key as Bearer token (format: PREFIX:ID:SECRET).
@@ -28,14 +31,18 @@ export async function GET() {
   }
 
   try {
-    const response = await fetch("https://api.circle.com/v1/w3s/wallets", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    });
+    // Use sandbox base URL for testnet keys
+    // GET /ping is accessible by all Circle API key types
+    const response = await fetch(
+      "https://api-sandbox.circle.com/ping",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          Accept: "application/json",
+        },
+      }
+    );
 
     const circleStatus = response.status;
 
@@ -45,7 +52,7 @@ export async function GET() {
           ok: true,
           configured: true,
           circleStatus,
-          message: "Circle API key verified with Circle API.",
+          message: "Circle API key verified with sandbox API.",
         },
         { status: 200 }
       );
@@ -58,7 +65,7 @@ export async function GET() {
           configured: true,
           circleStatus,
           message:
-            "Circle returned 401. The key is present, but this endpoint/base URL may not match the key type or product access.",
+            "Circle returned 401. The API key may be invalid or expired.",
         },
         { status: 200 }
       );
@@ -71,7 +78,7 @@ export async function GET() {
           configured: true,
           circleStatus,
           message:
-            "Circle returned 403. The key is valid but may not have access to this product.",
+            "Circle returned 403. The key may not have access to this environment.",
         },
         { status: 200 }
       );
@@ -83,7 +90,7 @@ export async function GET() {
         ok: false,
         configured: true,
         circleStatus,
-        message: `Circle API returned status ${circleStatus}. Please verify your API key is valid.`,
+        message: `Circle sandbox API returned status ${circleStatus}. Please verify your API key.`,
       },
       { status: 200 }
     );
@@ -95,7 +102,7 @@ export async function GET() {
         configured: true,
         circleStatus: 0,
         message:
-          "Unable to reach Circle API. Please check network connectivity.",
+          "Unable to reach Circle sandbox API. Please check network connectivity.",
       },
       { status: 200 }
     );

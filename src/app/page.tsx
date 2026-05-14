@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { InvoiceCard } from "@/components/invoice/invoice-card";
 import { EmptyState } from "@/components/invoice/empty-state";
 import { StatsRowSkeleton, InvoiceListSkeleton } from "@/components/ui/skeleton";
+import { PageTransition, StaggerList, StaggerItem } from "@/components/ui/motion";
 
 export default function DashboardPage() {
   const { isConnected } = useAccount();
@@ -128,7 +129,7 @@ export default function DashboardPage() {
       {invoices.length === 0 ? (
         <EmptyState />
       ) : (
-        <div className="space-y-3">
+        <StaggerList className="space-y-3">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-medium text-text-secondary uppercase tracking-wider">Recent Invoices</h2>
             {invoices.length > 3 && (
@@ -136,9 +137,11 @@ export default function DashboardPage() {
             )}
           </div>
           {invoices.slice(0, 5).map((invoice) => (
-            <InvoiceCard key={invoice.id} invoice={invoice} />
+            <StaggerItem key={invoice.id}>
+              <InvoiceCard invoice={invoice} />
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerList>
       )}
 
       {/* Analytics + Checkout Cards */}

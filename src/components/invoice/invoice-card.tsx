@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "framer-motion";
 import type { Invoice } from "@/types/invoice";
 import { StatusBadge } from "@/components/invoice/status-badge";
 import { formatDate } from "@/lib/utils";
@@ -10,7 +13,11 @@ interface InvoiceCardProps {
 export function InvoiceCard({ invoice }: InvoiceCardProps) {
   return (
     <Link href={`/invoice/${invoice.id}`} className="block group">
-      <div className="rounded-xl border border-border-default bg-bg-card/60 p-4 sm:p-5 transition-all duration-200 hover:border-border-accent hover:bg-bg-card group-focus-visible:ring-2 group-focus-visible:ring-accent-cyan/50">
+      <motion.div
+        whileHover={{ y: -2, transition: { duration: 0.2 } }}
+        whileTap={{ scale: 0.99 }}
+        className="rounded-xl border border-border-default bg-bg-card/60 p-4 sm:p-5 transition-all duration-200 hover:border-border-accent hover:bg-bg-card hover:shadow-elevated group-focus-visible:ring-2 group-focus-visible:ring-accent-cyan/50"
+      >
         <div className="flex items-center justify-between gap-4">
           {/* Left */}
           <div className="min-w-0 flex-1">
@@ -35,7 +42,7 @@ export function InvoiceCard({ invoice }: InvoiceCardProps) {
             </span>
           </div>
         </div>
-      </div>
+      </motion.div>
     </Link>
   );
 }
